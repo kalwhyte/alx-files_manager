@@ -11,13 +11,12 @@ export const postNew = async (req, res) => {
     return res.status(400).json({ error: 'Missing password' });
   }
 
-  const Users = dbClient._db.collection('user');
+  const Users = dbClient._db.collection('users');
   let user = await Users.findOne({ email });
 
   if (user) return res.status(400).json({ error: 'Already exist' });
 
   const hashedPassword = sha1(password);
-  console.log(hashedPassword);
   await Users.insertOne({ email, password: hashedPassword });
   user = await Users.findOne({ email });
 
