@@ -5,7 +5,7 @@ class DBClient {
     const dbHost = process.env.DB_HOST || 'localhost';
     const dbPort = process.env.DB_PORT || '27017';
     const dbDatabase = process.env.DB_DATABASE || 'files_manager';
-    const uri = `mongodb://${dbHost}:${dbPort}/`;
+    const uri = `mongodb://${dbHost}:${dbPort}`;
     this._client = new MongoClient(uri);
     (async () => {
       await this._client.connect();
@@ -25,16 +25,18 @@ class DBClient {
    * Get the number of user in the users collection
    * @returns {Number} user counts
    */
-  nbUsers() {
-    return this._db.collection('users').countDocuments();
+  async nbUsers() {
+    const result = await this._db.collection('users').countDocuments({});
+    return result;
   }
 
   /**
    * Get the number of files in the files collection
    * @returns {Number} files count
    */
-  nbFiles() {
-    return this._db.collection('files').countDocuments();
+  async nbFiles() {
+    const res = await this._db.collection('files').countDocuments({});
+    return res;
   }
 }
 
