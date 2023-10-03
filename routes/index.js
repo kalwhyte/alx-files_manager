@@ -1,14 +1,11 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable import/no-extraneous-dependencies */
-const express = require('express');
-const path = require('path');
+import { Router } from 'express';
+import * as AppController from '../controllers/AppController';
+import * as UsersController from '../controllers/UsersController';
 
-const AppController = require('../controllers/AppController');
+const endPoints = Router();
 
-const router = express.Router();
+endPoints.get('/status', AppController.status);
+endPoints.get('/stats', AppController.stats);
+endPoints.post('/users', UsersController.postNew);
 
-// Endpoint: GET /status => AppController.getStatus
-router.get('/status', AppController.getStatus);
-router.get('/stats', AppController.getStats);
-
-module.exports = router;
+export default endPoints;
