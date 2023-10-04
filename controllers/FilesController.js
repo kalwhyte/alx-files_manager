@@ -92,4 +92,23 @@ export const postUpload = async (req, res) => {
   });
 };
 
-export const now = 0;
+/**
+ * ### getShow
+ * Retrieves the file document based on the id
+ * @param {Request} req object
+ * @param {Response} res object
+ * @returns {Promise<Response>}
+ */
+export const getShow = async (req, res) => {
+  const { user } = req;
+  const { id } = req.params;
+
+  const Files = dbClient._db.collection('files');
+  const files = await Files.find({ _id: mongo.ObjectID(id), userId: user._id });
+
+  if (files.length === 0) {
+    return res.status(404).json({ error: 'Not found' });
+  }
+
+  return res.json({});
+};
