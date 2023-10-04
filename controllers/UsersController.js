@@ -1,5 +1,8 @@
 import sha1 from 'sha1';
+import mongo from 'mongodb';
+
 import dbClient from '../utils/db';
+import redisClient from '../utils/redis';
 
 export const postNew = async (req, res) => {
   const { email, password } = req.body;
@@ -23,4 +26,26 @@ export const postNew = async (req, res) => {
   return res.status(201).json({ id: user._id, email: user.email });
 };
 
-export const dummyFunc = 0;
+/**
+ * ## getMe
+ * @param {Request} req
+ * @param {Response} res
+ * @returns {Promise<Response>}
+ */
+export const getMe = async (req, res) => {
+  const token = req.header('x-token');
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+  // get user id from redis
+  const key = `auth_${token}`;
+
+  const id = await redisClient.get(key);
+  if (!id) return res.status(401).json({ error: 'Unauthorized' });
+
+  // get user from db
+  const user = await dbClient._db
+    .collection('users')
+    .findOne({ _id: mongo.ObjectId(id) });
+  if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+  return res.status(201).json({ id: user._id, email: user.email });
+};

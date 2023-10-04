@@ -1,3 +1,10 @@
-import sha1 from 'sha1';
+import dbClient from './utils/db';
 
-console.log(sha1('jojo_thomas'));
+async function runIt() {
+  const user = await dbClient._db.collection('users').findOne({
+    email: 'jojothomas1515@gmail.com',
+  });
+  console.log(user);
+}
+
+setTimeout(() => runIt(), 5000);
