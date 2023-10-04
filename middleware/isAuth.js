@@ -1,9 +1,9 @@
 import mongo from 'mongodb';
-import dbClient from './db';
-import redisClient from './redis';
+import dbClient from '../utils/db';
+import redisClient from '../utils/redis';
 
 /* eslint-disable import/prefer-default-export */
-export async function isAuth(req, res) {
+export async function isAuth(req, res, next) {
   const token = req.header('x-token');
   if (!token) return res.status(401).json({ error: 'Unauthorized' });
   // get the user_id from redis
@@ -18,5 +18,6 @@ export async function isAuth(req, res) {
     .findOne({ _id: mongo.ObjectId(id) });
   if (!user) return res.status(401).json({ error: 'Unauthorized' });
 
-  return user;
+  req.user = user;
+  next();
 }

@@ -6,7 +6,6 @@ import mongo from 'mongodb';
 
 import { promisify } from 'util';
 import dbClient from '../utils/db';
-import { isAuth } from '../utils/isAuth';
 
 /**
  * upload file
@@ -15,8 +14,7 @@ import { isAuth } from '../utils/isAuth';
  * @returns {Promise<Response>}
  */
 export const postUpload = async (req, res) => {
-  const user = await isAuth(req, res);
-  console.log(user);
+  const { user } = req;
   const types = ['folder', 'file', 'image'];
   // eslint-disable-next-line object-curly-newline
   const { name, type, data, parentId, isPublic } = req.body;
@@ -25,10 +23,13 @@ export const postUpload = async (req, res) => {
   if (!types.includes(type)) return res.status(400).json({ error: 'Missing type' });
   if (!data && type !== 'folder') return res.status(400).json({ error: 'Missing data' });
   if (parentId) {
-    const file = dbClient._db.collection('files').findOne({ parentId });
-    if (!file) return res.status(400).json({ error: 'Parent not found' });
+    const files = await dbClient._db.collection('files').findOne({
+      parentId: Number(parentId),
+    });
+    console.log(files);
+    if (!files) return res.status(400).json({ error: 'Parent not found' });
 
-    if (file.type !== 'folder') {
+    if (files.type !== 'folder') {
       return res.status(400).json({ error: 'Parent is not a folder' });
     }
   }
@@ -48,6 +49,7 @@ export const postUpload = async (req, res) => {
     return res.status(201).json({
       id: folder._id,
       userId: folder.userId,
+      name: folder.name,
       type: folder.type,
       parentId: folder.parentId,
       isPublic: folder.isPublic,
@@ -83,6 +85,7 @@ export const postUpload = async (req, res) => {
   return res.status(201).json({
     id: file._id,
     userId: file.userId,
+    name: file.name,
     type: file.type,
     parentId: file.parentId,
     isPublic: file.isPublic,
