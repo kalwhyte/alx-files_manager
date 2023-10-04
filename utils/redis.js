@@ -26,8 +26,8 @@ class RedisClient {
   }
 
   async del(key) {
-    const dels = promisify(this._client.del).bind(this._client);
-    const res = await dels(key);
+    const del = promisify(this._client.del).bind(this._client);
+    const res = await del(key);
     return res;
   }
 }
