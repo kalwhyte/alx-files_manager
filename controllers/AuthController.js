@@ -1,6 +1,6 @@
 import sha1 from 'sha1';
 import mongo from 'mongodb';
-import { v4 as uuidv4 } from 'uuid';
+import { v1 as uuidv4 } from 'uuid';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
@@ -47,9 +47,10 @@ export const getConnect = async (req, res) => {
 export const getDisconnect = async (req, res) => {
   const token = req.header('x-token');
 
-  const key = `auth_${token}`;
   if (!token) return res.status(401).json({ error: 'Unauthorized' });
   // get the user_id from redis
+  const key = `auth_${token}`;
+
   const id = await redisClient.get(key);
   if (!id) return res.status(401).json({ error: 'Unauthorized' });
 
@@ -60,5 +61,5 @@ export const getDisconnect = async (req, res) => {
   if (!user) return res.status(401).json({ error: 'Unauthorized' });
 
   await redisClient.del(key);
-  res.status(204).send();
+  return res.status(204).send();
 };
