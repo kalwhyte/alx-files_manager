@@ -39,7 +39,7 @@ export const postUpload = async (req, res) => {
       userId: user._id,
       name,
       type,
-      parentId: parentId || 0,
+      parentId: parentId || '0',
       isPublic: isPublic || false,
     });
     folder = await dbClient._db
@@ -74,7 +74,7 @@ export const postUpload = async (req, res) => {
     userId: user._id,
     name,
     type,
-    parentId: parentId || 0,
+    parentId: parentId || '0',
     isPublic: isPublic || false,
     localPath: absPath,
   });
