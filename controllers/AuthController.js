@@ -60,5 +60,5 @@ export const getDisconnect = async (req, res) => {
   if (!user) return res.status(401).json({ error: 'Unauthorized' });
 
   await redisClient.del(key);
-  return res.status(204).send();
+  res.status(204).send();
 };
