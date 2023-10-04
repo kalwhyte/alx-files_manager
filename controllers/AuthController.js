@@ -1,8 +1,8 @@
 import sha1 from 'sha1';
+import mongo from 'mongodb';
 import { v4 as uuidv4 } from 'uuid';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
-import mongo from 'mongodb';
 
 /**
  * Get /connect should sign-in the user by generating a new authentication token
