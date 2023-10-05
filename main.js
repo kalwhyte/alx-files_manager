@@ -1,28 +1,24 @@
 import dbClient from './utils/db';
 
-const waitConnection = () => {
-  return new Promise((resolve, reject) => {
-    let i = 0;
-    const repeatFct = async () => {
-      await setTimeout(() => {
-        i += 1;
-        if (i >= 10) {
-          reject();
-        } else if (!dbClient.isAlive()) {
-          repeatFct();
-        } else {
-          resolve();
-        }
-      }, 1000);
-    };
-    repeatFct();
-  });
-};
+async function getFile() {
+  const Files = dbClient._db.collection('files');
+  const file = Files.aggregate([
+    { $match: { parentId: 0 } },
+    {
+      $project: {
+        _id: 0,
+        id: '$_id',
+        userId: 1,
+        name: 1,
+        type: 1,
+        parentId: 1,
+        isPublic: 1,
+      },
+    },
+  ]);
+  console.log(await file.toArray());
+}
 
-(async () => {
-  console.log(dbClient.isAlive());
-  await waitConnection();
-  console.log(dbClient.isAlive());
-  console.log(await dbClient.nbUsers());
-  console.log(await dbClient.nbFiles());
-})();
+setTimeout(async () => {
+  await getFile();
+}, 2000);

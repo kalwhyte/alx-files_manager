@@ -121,3 +121,31 @@ export const getShow = async (req, res) => {
     isPublic: file.isPublic,
   });
 };
+
+/**
+ * ### getIndex
+ * Retrieves the file document based on the id
+ * @param {Request} req object
+ * @param {Response} res object
+ * @returns {Promise<Response>}
+ */
+export const getIndex = async (req, res) => {
+  const { user } = req;
+  const { parentId, page } = req.body;
+
+  const Files = dbClient._db.collection('files');
+  const files = Files.aggregate([
+    { $match: { parentId } },
+    {
+      $project: {
+        _id: 0,
+        id: '$_id',
+        userId: 1,
+        name: 1,
+        type: 1,
+        parentId: 1,
+        isPublic: 1,
+      },
+    },
+  ]);
+};
