@@ -5,6 +5,7 @@ import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
 export const postNew = async (req, res) => {
+  console.log(req.body);
   const { email, password } = req.body;
 
   if (!email) {

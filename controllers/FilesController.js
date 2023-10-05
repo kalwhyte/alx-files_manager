@@ -22,12 +22,11 @@ export const postUpload = async (req, res) => {
   if (!name) return res.status(400).json({ error: 'Missing name' });
   if (!types.includes(type)) return res.status(400).json({ error: 'Missing type' });
   if (!data && type !== 'folder') return res.status(400).json({ error: 'Missing data' });
-  console.log(parentId);
 
   if (parentId) {
     console.log(parentId);
     const files = await dbClient._db.collection('files').findOne({
-      _id: ObjectID(parentId),
+      _id: new ObjectID(parentId),
     });
     console.log(files);
     if (!files) return res.status(400).json({ error: 'Parent not found' });
@@ -42,7 +41,7 @@ export const postUpload = async (req, res) => {
       userId: user._id,
       name,
       type,
-      parentId: parentId ? String(parentId) : '0',
+      parentId: parentId || 0,
       isPublic: isPublic || false,
     });
     folder = await dbClient._db
@@ -77,7 +76,7 @@ export const postUpload = async (req, res) => {
     userId: user._id,
     name,
     type,
-    parentId: parentId ? String(parentId) : '0',
+    parentId: parentId || 0,
     isPublic: isPublic || false,
     localPath: absPath,
   });
