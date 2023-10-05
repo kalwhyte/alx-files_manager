@@ -130,14 +130,14 @@ export const getShow = async (req, res) => {
  * @returns {Promise<Response>}
  */
 export const getIndex = async (req, res) => {
-  const { user } = req;
+  const { userId } = req;
   const { parentId, page } = req.body;
 
   const Files = dbClient._db.collection('files');
 
   // TODO: fix aggregate
-  let files = Files.aggregate([
-    { $match: { parentId } },
+  const files = await Files.aggregate([
+    { $match: { userId: mongo.ObjectID(userId), parentId: mongo.ObjectID(parentId) } },
     {
       $project: {
         _id: 0,
@@ -149,7 +149,9 @@ export const getIndex = async (req, res) => {
         isPublic: 1,
       },
     },
-    { $limit: page },
-  ]);
-  files = await files.toArray();
+    { $skip: page * 20 },
+    { $limit: 20 },
+  ]).toArray();
+
+  return res.status(201).json(files);
 };
