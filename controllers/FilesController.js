@@ -134,7 +134,9 @@ export const getIndex = async (req, res) => {
   const { parentId, page } = req.body;
 
   const Files = dbClient._db.collection('files');
-  const files = Files.aggregate([
+
+  // TODO: fix aggregate
+  let files = Files.aggregate([
     { $match: { parentId } },
     {
       $project: {
@@ -147,5 +149,7 @@ export const getIndex = async (req, res) => {
         isPublic: 1,
       },
     },
+    { $limit: page },
   ]);
+  files = await files.toArray();
 };
