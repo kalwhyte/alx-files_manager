@@ -2,7 +2,7 @@
 import fs from 'fs';
 import { v1 as uuidv4 } from 'uuid';
 import path from 'path';
-import mongo from 'mongodb';
+import { ObjectID } from 'mongodb';
 
 import { promisify } from 'util';
 import dbClient from '../utils/db';
@@ -22,9 +22,12 @@ export const postUpload = async (req, res) => {
   if (!name) return res.status(400).json({ error: 'Missing name' });
   if (!types.includes(type)) return res.status(400).json({ error: 'Missing type' });
   if (!data && type !== 'folder') return res.status(400).json({ error: 'Missing data' });
+  console.log(parentId);
+
   if (parentId) {
+    console.log(parentId);
     const files = await dbClient._db.collection('files').findOne({
-      parentId: Number(parentId),
+      _id: ObjectID(parentId),
     });
     console.log(files);
     if (!files) return res.status(400).json({ error: 'Parent not found' });
@@ -39,12 +42,12 @@ export const postUpload = async (req, res) => {
       userId: user._id,
       name,
       type,
-      parentId: parentId || '0',
+      parentId: parentId ? String(parentId) : '0',
       isPublic: isPublic || false,
     });
     folder = await dbClient._db
       .collection('files')
-      .findOne({ _id: mongo.ObjectID(folder.insertedId) });
+      .findOne({ _id: ObjectID(folder.insertedId) });
 
     return res.status(201).json({
       id: folder._id,
@@ -74,13 +77,13 @@ export const postUpload = async (req, res) => {
     userId: user._id,
     name,
     type,
-    parentId: parentId || '0',
+    parentId: parentId ? String(parentId) : '0',
     isPublic: isPublic || false,
     localPath: absPath,
   });
   file = await dbClient._db
     .collection('files')
-    .findOne({ _id: mongo.ObjectID(file.insertedId) });
+    .findOne({ _id: ObjectID(file.insertedId) });
 
   return res.status(201).json({
     id: file._id,
@@ -104,7 +107,7 @@ export const getShow = async (req, res) => {
   const { id } = req.params;
 
   const Files = dbClient._db.collection('files');
-  const files = await Files.find({ _id: mongo.ObjectID(id), userId: user._id });
+  const files = await Files.find({ _id: ObjectID(id), userId: user._id });
 
   if (files.length === 0) {
     return res.status(404).json({ error: 'Not found' });

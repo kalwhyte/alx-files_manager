@@ -10,7 +10,7 @@ import sha1 from 'sha1';
 
 chai.use(chaiHttp);
 
-describe('GET /users/me', () => {
+describe('POST /files', () => {
   let testClientDb;
   let testRedisClient;
   let redisDelAsync;
@@ -45,6 +45,7 @@ describe('GET /users/me', () => {
           testClientDb = client.db(dbInfo.database);
 
           await testClientDb.collection('users').deleteMany({});
+          await testClientDb.collection('files').deleteMany({});
 
           // Add 1 user
           initialUser = {
@@ -80,20 +81,40 @@ describe('GET /users/me', () => {
     fctRemoveAllRedisKeys();
   });
 
-  it('GET /users/me with an correct token', (done) => {
+  it('POST /files creates a folder at the root', (done) => {
+    const fileData = {
+      name: fctRandomString(),
+      type: 'folder',
+    };
     chai
       .request('http://localhost:5000')
-      .get('/users/me')
+      .post('/files')
       .set('X-Token', initialUserToken)
+      .send(fileData)
       .end(async (err, res) => {
         chai.expect(err).to.be.null;
-        chai.expect(res).to.have.status(200);
+        chai.expect(res).to.have.status(201);
 
-        const resUser = res.body;
-        chai.expect(resUser.email).to.equal(initialUser.email);
-        chai.expect(resUser.id).to.equal(initialUserId);
+        const resFile = res.body;
+        chai.expect(resFile.name).to.equal(fileData.name);
+        chai.expect(resFile.userId).to.equal(initialUserId);
+        chai.expect(resFile.type).to.equal(fileData.type);
+        chai.expect(resFile.parentId).to.equal(0);
 
-        done();
+        testClientDb
+          .collection('files')
+          .find({})
+          .toArray((err, docs) => {
+            chai.expect(err).to.be.null;
+            chai.expect(docs.length).to.equal(1);
+            const docFile = docs[0];
+            chai.expect(docFile.name).to.equal(fileData.name);
+            chai.expect(docFile._id.toString()).to.equal(resFile.id);
+            chai.expect(docFile.userId.toString()).to.equal(initialUserId);
+            chai.expect(docFile.type).to.equal(fileData.type);
+            chai.expect(docFile.parentId.toString()).to.equal('0');
+            done();
+          });
       });
   }).timeout(30000);
 });
