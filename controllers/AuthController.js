@@ -22,6 +22,8 @@ export const getConnect = async (req, res) => {
   const credentials = Buffer.from(base64Credentials, 'base64').toString('utf-8');
   const [email, password] = credentials.split(':');
   // Check if user exist
+  if (!email || !password) return res.status(401).json({ error: 'Unauthorized' });
+
   const user = await dbClient._db.collection('users').findOne({
     email,
     password: sha1(password),

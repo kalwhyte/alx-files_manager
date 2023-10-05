@@ -16,6 +16,6 @@ endPoints.get('/users/me', UsersController.getMe);
 
 endPoints.post('/files', isAuth, FilesController.postUpload);
 endPoints.get('/files/:id', isAuth, FilesController.getShow);
-endPoints.get('/files', isAuth, FilesController.getIndex);
+// endPoints.get('/files', isAuth, FilesController.getIndex);
 
 export default endPoints;

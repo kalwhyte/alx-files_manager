@@ -47,5 +47,5 @@ export const getMe = async (req, res) => {
     .findOne({ _id: mongo.ObjectId(id) });
   if (!user) return res.status(401).json({ error: 'Unauthorized' });
 
-  return res.status(201).json({ id: user._id, email: user.email });
+  return res.status(200).json({ id: user._id, email: user.email });
 };
